@@ -3,7 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { demoSignIn } from "@/app/actions/auth";
-import { SupabaseAuth } from "@/components/site/AuthButtons";
+import { AdminPasswordLogin, SupabaseAuth } from "@/components/site/AuthButtons";
 import { GoogleIcon } from "@/components/site/SocialIcons";
 import { btn, inputCls } from "@/components/ui";
 import { media } from "@/content/site";
@@ -18,7 +18,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; admin?: string; denied?: string }>;
 }) {
   const sp = await searchParams;
-  const next = sp.next?.startsWith("/") ? sp.next : "/cuenta";
+  const next = sp.next?.startsWith("/") && !sp.next.startsWith("//") ? sp.next : "/cuenta";
   const user = await getCurrentUser();
   if (user && !sp.denied && (!sp.admin || user.role === "admin")) redirect(next);
   const admin = sp.admin === "1";
@@ -47,7 +47,7 @@ export default async function LoginPage({
 
           <div className="mt-8">
             {hasSupabase ? (
-              <SupabaseAuth next={next} />
+              admin ? <AdminPasswordLogin next={next} /> : <SupabaseAuth next={next} />
             ) : (
               <div className="space-y-4">
                 <div className="flex items-start gap-2 rounded-xl bg-sun/30 px-3 py-2.5 text-xs leading-relaxed">

@@ -61,3 +61,36 @@ export function SupabaseAuth({ next }: { next: string }) {
     </div>
   );
 }
+
+/** Acceso del equipo: correo y contraseña de un usuario creado en Supabase › Authentication. */
+export function AdminPasswordLogin({ next }: { next: string }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setMsg("");
+    const { error } = await supabaseBrowser().auth.signInWithPassword({ email, password });
+    if (error) {
+      setLoading(false);
+      setMsg(error.message === "Invalid login credentials" ? "Correo o contraseña incorrectos." : error.message);
+      return;
+    }
+    // Recarga completa para que el servidor lea la sesión nueva.
+    window.location.assign(next);
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-3">
+      <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@empowerme.mx" className={inputCls} autoComplete="username" />
+      <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" className={inputCls} autoComplete="current-password" />
+      <button disabled={loading} className={btn("brand", "lg", "w-full")}>
+        {loading && <Loader2 className="size-4 animate-spin" />} Entrar al panel
+      </button>
+      {msg && <p className="text-sm text-brand" role="alert">{msg}</p>}
+    </form>
+  );
+}

@@ -29,7 +29,15 @@ Abre http://localhost:3000. Sin variables de entorno corre en **modo demo**:
 2. En **Authentication › Providers** activa Google (Client ID y Secret de Google Cloud).
 3. En **Authentication › URL Configuration** agrega `https://TU-DOMINIO/auth/callback` (y la URL de Vercel) a *Redirect URLs*.
 4. Copia `.env.example` a `.env.local` y llena `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` y `ADMIN_EMAILS` (correos que serán admin).
-5. Entra a `/admin` con un correo admin y usa **Cargar datos de ejemplo** si quieres la demo poblada.
+5. Carga los datos de ejemplo con `npm run seed` (o desde `/admin` › **Cargar datos de ejemplo**).
+
+### Crear administradores desde Supabase
+1. Ejecuta una vez `supabase/admin.sql` (parte 1: crea el perfil de cada usuario nuevo automáticamente).
+2. **Authentication › Users › Add user › Create new user**: correo + contraseña, con *Auto Confirm User* activado.
+3. En **SQL Editor** ejecuta la parte 2 de `supabase/admin.sql` con ese correo para darle rol `admin`.
+4. Entra en `/admin` (o `/login?admin=1`) con correo y contraseña.
+
+`ADMIN_EMAILS` es opcional: los correos listados ahí también reciben rol admin al iniciar sesión.
 
 ## Desplegar en Vercel
 
