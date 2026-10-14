@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────────
+   Empowerme — tokens de marca
+   Rojo terracota del logo + rosa y sol de su comunidad,
+   sobre papel crema. Tinta cálida en lugar de negro puro.
+   ─────────────────────────────────────────────── */
+@theme {
+  --color-brand: #d1432d;
+  --color-brand-deep: #a8321f;
+  --color-brand-soft: #f6d9d1;
+  --color-ink: #1b1714;
+  --color-ink-2: #2a2420;
+  --color-cream: #f4eee4;
+  --color-paper: #fbf8f3;
+  --color-sand: #e8dfd1;
+  --color-muted: #6e655c;
+  --color-pink: #f2b5c8;
+  --color-hot: #e5487d;
+  --color-sun: #f2c94c;
+  --color-sage: #9db89a;
+  --color-line: rgb(27 23 20 / 0.12);
+
+  --radius-card: 1.25rem;
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-marquee-rev: marquee 46s linear infinite reverse;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, serif;
+}
+
+/* Titulares condensados tipo dorsal de carrera */
+@utility display {
+  font-family: var(--font-archivo), sans-serif;
+  font-stretch: 70%;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+}
+
+/* Acento editorial: serif itálica en minúsculas */
+@utility accent {
+  font-family: var(--font-instrument), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-stretch: 100%;
+}
+
+/* Etiquetas pequeñas en mayúscula espaciada */
+@utility eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-stretch: 100%;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  ::selection {
+    background: var(--color-brand);
+    color: white;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Grano sutil para que el crema no se vea plano */
+.grain {
+  position: relative;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
