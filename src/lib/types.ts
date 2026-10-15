@@ -99,6 +99,8 @@ export interface Profile {
   emergencyPhone?: string;
   role: Role;
   consents?: Consents;
+  /** Permiso para mensajes promocionales por WhatsApp (Meta lo exige para marketing). */
+  marketing?: MarketingPrefs;
   tags: string[];
   createdAt: string;
 }
@@ -214,4 +216,64 @@ export interface Notification {
   status: "enviado" | "simulado" | "error";
   ref?: string;
   createdAt: string;
+}
+
+export interface MarketingPrefs {
+  optIn: boolean;
+  at?: string;
+  optOutAt?: string;
+}
+
+/* ── Marketing por WhatsApp ─────────────────────────────── */
+
+/** evento y felicitacion son "marketing" (requieren opt-in); recordatorio es "utilidad". */
+export type CampaignKind = "evento" | "recordatorio" | "felicitacion" | "libre";
+
+export type AudienceSegment =
+  | "comunidad" // todas las personas con opt-in
+  | "experiencia" // quienes han asistido a una experiencia
+  | "sesion" // inscritos de una fecha concreta
+  | "recurrentes" // 2 o más reservas
+  | "tipo" // quienes han ido a clases / talleres / carreras
+  | "cumpleanos"; // cumplen años hoy
+
+export interface Audience {
+  segment: AudienceSegment;
+  activityId?: string;
+  sessionId?: string;
+  type?: ActivityType;
+}
+
+export type CampaignStatus = "borrador" | "programada" | "enviando" | "enviada";
+
+export interface CampaignStats {
+  total: number;
+  sent: number;
+  failed: number;
+  skipped: number;
+}
+
+export interface Campaign {
+  id: string;
+  name: string;
+  kind: CampaignKind;
+  audience: Audience;
+  body: string;
+  /** Experiencia que llena {{experiencia}}, {{fecha}}, {{hora}}, {{sede}} y {{link}}. */
+  activityId?: string;
+  imageUrl?: string;
+  /** Nombre de la plantilla aprobada en Meta (obligatoria fuera de la ventana de 24 h). */
+  templateName?: string;
+  status: CampaignStatus;
+  scheduledAt?: string;
+  sentAt?: string;
+  stats: CampaignStats;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface Automations {
+  reminders: { enabled: boolean; body: string; templateName?: string };
+  birthdays: { enabled: boolean; body: string; templateName?: string };
+  lastRunAt?: string;
 }

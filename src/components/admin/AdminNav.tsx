@@ -9,6 +9,7 @@ import {
   ExternalLink,
   LayoutDashboard,
   Layers,
+  Megaphone,
   Menu,
   Rocket,
   ScanLine,
@@ -34,6 +35,7 @@ const groups = [
     items: [
       { href: "/admin/crm", label: "Personas", icon: Users, exact: true },
       { href: "/admin/crm/empresas", label: "Empresas (leads)", icon: Building2 },
+      { href: "/admin/marketing", label: "Marketing WhatsApp", icon: Megaphone },
       { href: "/admin/programas", label: "Programas", icon: Rocket },
       { href: "/admin/envios", label: "Envíos", icon: Send },
     ],

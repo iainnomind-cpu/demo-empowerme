@@ -1,5 +1,7 @@
 import type {
   ActivityInput,
+  Automations,
+  Campaign,
   ActivityWithSessions,
   Booking,
   Lead,
@@ -50,5 +52,11 @@ export interface Repo {
   saveProgram(p: Program): Promise<void>;
 
   addNotification(n: Omit<Notification, "id" | "createdAt">): Promise<void>;
-  listNotifications(): Promise<Notification[]>;
+  listNotifications(opts?: { refPrefix?: string; limit?: number }): Promise<Notification[]>;
+
+  listCampaigns(): Promise<Campaign[]>;
+  getCampaign(id: string): Promise<Campaign | null>;
+  saveCampaign(c: Campaign): Promise<void>;
+  getAutomations(): Promise<Automations>;
+  saveAutomations(a: Automations): Promise<void>;
 }

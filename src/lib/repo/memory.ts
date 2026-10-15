@@ -1,7 +1,8 @@
 import "server-only";
-import { seedActivities, seedLeads, seedNotifications, seedPeople, seedPrograms } from "@/lib/seed";
+import { defaultAutomations } from "@/content/marketing";
+import { seedActivities, seedCampaigns, seedLeads, seedNotifications, seedPeople, seedPrograms } from "@/lib/seed";
 import { uid } from "@/lib/format";
-import type { ActivityWithSessions, Booking, Lead, Notification, Order, Profile, Program } from "@/lib/types";
+import type { ActivityWithSessions, Automations, Booking, Campaign, Lead, Notification, Order, Profile, Program } from "@/lib/types";
 import type { Repo } from "./types";
 
 /**
@@ -17,6 +18,8 @@ interface Store {
   leads: Lead[];
   programs: Program[];
   notifications: Notification[];
+  campaigns: Campaign[];
+  automations: Automations;
 }
 
 function createStore(): Store {
@@ -30,6 +33,8 @@ function createStore(): Store {
     leads: seedLeads(),
     programs: seedPrograms(),
     notifications: seedNotifications(),
+    campaigns: seedCampaigns(),
+    automations: structuredClone(defaultAutomations),
   };
 }
 
@@ -220,7 +225,32 @@ export const memoryRepo: Repo = {
     db().notifications.unshift({ ...n, id: uid("ntf-"), createdAt: now() });
   },
 
-  async listNotifications() {
-    return clone(db().notifications);
+  async listNotifications(opts) {
+    const list = db().notifications.filter((n) => !opts?.refPrefix || n.ref?.startsWith(opts.refPrefix));
+    return clone(list.slice(0, opts?.limit ?? 500));
+  },
+
+  async listCampaigns() {
+    return clone([...db().campaigns].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+  },
+
+  async getCampaign(id) {
+    const c = db().campaigns.find((x) => x.id === id);
+    return c ? clone(c) : null;
+  },
+
+  async saveCampaign(c) {
+    const s = db();
+    const i = s.campaigns.findIndex((x) => x.id === c.id);
+    if (i >= 0) s.campaigns[i] = clone(c);
+    else s.campaigns.unshift(clone(c));
+  },
+
+  async getAutomations() {
+    return clone(db().automations);
+  },
+
+  async saveAutomations(a) {
+    db().automations = clone(a);
   },
 };

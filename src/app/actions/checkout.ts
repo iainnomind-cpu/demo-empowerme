@@ -33,6 +33,7 @@ const schema = z.object({
   privacy: z.literal(true, { errorMap: () => ({ message: "Debes aceptar el aviso de privacidad." }) }),
   image: z.boolean(),
   waiver: z.literal(true, { errorMap: () => ({ message: "Debes aceptar la carta responsiva." }) }),
+  marketing: z.boolean().default(false),
 });
 
 export type CheckoutInput = z.infer<typeof schema>;
@@ -107,6 +108,11 @@ export async function placeOrder(raw: CheckoutInput): Promise<CheckoutResult> {
     emergencyName: input.emergencyName,
     emergencyPhone: input.emergencyPhone,
     tags: [...tags],
+    marketing: input.marketing
+      ? { optIn: true, at: profile.marketing?.optIn ? profile.marketing.at : nowIso }
+      : profile.marketing?.optIn
+        ? { optIn: false, optOutAt: nowIso }
+        : profile.marketing,
     consents: {
       version: LEGAL_VERSION,
       privacy: prev?.privacy ?? nowIso,

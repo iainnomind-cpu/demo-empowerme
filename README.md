@@ -39,6 +39,18 @@ Abre http://localhost:3000. Sin variables de entorno corre en **modo demo**:
 
 `ADMIN_EMAILS` es opcional: los correos listados ahí también reciben rol admin al iniciar sesión.
 
+## Marketing por WhatsApp (`/admin/marketing`)
+
+- **Campañas**: nuevo evento, recordatorio, felicitación o mensaje libre; segmentos (toda la comunidad, asistentes de una experiencia, por tipo, inscritos de una fecha, comunidad fiel, cumpleañeros); variables `{{nombre}} {{experiencia}} {{fecha}} {{hora}} {{sede}} {{link}}`; vista previa; envío inmediato o programado.
+- **Automatizaciones**: recordatorio el día anterior a cada experiencia y felicitación de cumpleaños. Corren con el cron diario de `vercel.json` (9:00 a.m. GDL) o con el botón *Ejecutar ahora*.
+- **Consentimiento**: el registro pide permiso opcional de marketing. Los mensajes de marketing solo llegan a quien lo aceptó; los recordatorios (utilidad) llegan a todo inscrito. Quien responde **BAJA** se da de baja solo (webhook `/api/whatsapp/webhook`).
+
+Puesta en marcha:
+1. Ejecuta `supabase/marketing.sql` en Supabase (agrega `profiles.marketing`, `campaigns` y `settings`).
+2. En Meta Business: número de WhatsApp Cloud API → `WHATSAPP_TOKEN` y `WHATSAPP_PHONE_ID`. Webhook: `https://TU-DOMINIO/api/whatsapp/webhook` con `WHATSAPP_VERIFY_TOKEN`, suscrito a `messages`.
+3. Crea en Meta las **plantillas** (una por tipo de mensaje) con el mismo texto y escribe su nombre en la campaña o en la automatización. Sin plantilla, Meta solo entrega mensajes a quien te escribió en las últimas 24 h.
+4. En Vercel agrega `CRON_SECRET`.
+
 ## Desplegar en Vercel
 
 1. Sube el repo a GitHub e impórtalo en Vercel (detecta Next.js solo).

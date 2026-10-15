@@ -1,8 +1,10 @@
 import { media } from "@/content/site";
 import { mxIso, shortCode } from "@/lib/format";
+import { presets } from "@/content/marketing";
 import type {
   ActivityWithSessions,
   Booking,
+  Campaign,
   Lead,
   Notification,
   Order,
@@ -423,9 +425,12 @@ export function seedPeople(activities: ActivityWithSessions[]) {
     email,
     fullName,
     phone,
+    // Daniela cumple años hoy para que la automatización de felicitaciones tenga a quién saludar.
+    birthdate: i === 1 ? birthdayToday(1996) : `199${i}-0${(i % 9) + 1}-1${i}`,
     role: "user" as const,
     tags: [],
     consents: { version: "2026-01", privacy: created, image: created, waiver: created },
+    marketing: i === 6 ? { optIn: false } : { optIn: true, at: created },
     createdAt: new Date(Date.now() - (60 - i * 5) * 86400000).toISOString(),
   }));
 
@@ -526,6 +531,44 @@ export function seedLeads(): Lead[] {
     { id: "lead-4", company: "Hospital San Rafael", contactName: "Dra. Leticia Mora", email: "lmora@sanrafael.example", employees: "500+", programId: "prg-nutre", programTitle: "Nutre tu energía", status: "ganado", value: 120000, notes: [{ at: d(12), text: "Firmado. Arranque 3 de noviembre.", author: "Liz" }], source: "Sitio web", createdAt: d(20) },
     { id: "lead-5", company: "Estudio Lumen", contactName: "Rafael Ochoa", email: "rafa@lumen.example", employees: "1–50", programId: "prg-muevete", programTitle: "Muévete en equipo", status: "perdido", value: 18000, notes: [{ at: d(15), text: "Sin presupuesto este año. Retomar en febrero.", author: "Liz" }], source: "Instagram", createdAt: d(25) },
     { id: "lead-6", company: "Universidad del Valle", contactName: "Karla Núñez", email: "knunez@udv.example", employees: "500+", programTitle: "Muévete en equipo", programId: "prg-muevete", status: "nuevo", notes: [], source: "Sitio web", createdAt: d(0) },
+  ];
+}
+
+function birthdayToday(year: number) {
+  const t = todayMx();
+  return `${year}-${String(t.m).padStart(2, "0")}-${String(t.d).padStart(2, "0")}`;
+}
+
+export function seedCampaigns(): Campaign[] {
+  const d = (n: number) => new Date(Date.now() - n * 86400000).toISOString();
+  return [
+    {
+      id: "cmp-demo-santa",
+      name: "Lanzamiento Santa Run",
+      kind: "evento",
+      audience: { segment: "tipo", type: "carrera" },
+      body: presets.evento.body,
+      activityId: "act-santa-run",
+      imageUrl: media.raceRoad,
+      status: "enviada",
+      sentAt: d(6),
+      stats: { total: 5, sent: 5, failed: 0, skipped: 1 },
+      createdBy: "Liz",
+      createdAt: d(6),
+    },
+    {
+      id: "cmp-demo-unidas",
+      name: "Invitación Círculo UNIDAS",
+      kind: "evento",
+      audience: { segment: "comunidad" },
+      body: presets.evento.body,
+      activityId: "act-unidas",
+      imageUrl: media.handsUp,
+      status: "borrador",
+      stats: { total: 0, sent: 0, failed: 0, skipped: 0 },
+      createdBy: "Liz",
+      createdAt: d(1),
+    },
   ];
 }
 

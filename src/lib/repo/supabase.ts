@@ -2,9 +2,12 @@ import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
 import { uid } from "@/lib/format";
+import { defaultAutomations } from "@/content/marketing";
 import type {
   ActivityWithSessions,
+  Automations,
   Booking,
+  Campaign,
   Lead,
   Notification,
   Order,
@@ -169,6 +172,7 @@ const toProfile = (r: Row): Profile => ({
   emergencyPhone: r.emergency_phone ?? undefined,
   role: r.role,
   consents: r.consents ?? undefined,
+  marketing: r.marketing ?? undefined,
   tags: r.tags ?? [],
   createdAt: r.created_at,
 });
@@ -183,6 +187,7 @@ const fromProfile = (p: Profile): Row => ({
   emergency_phone: p.emergencyPhone ?? null,
   role: p.role,
   consents: p.consents ?? null,
+  marketing: p.marketing ?? null,
   tags: p.tags,
   created_at: p.createdAt,
 });
@@ -255,6 +260,40 @@ const fromProgram = (p: Program): Row => ({
   color: p.color,
   published: p.published,
   sort: p.sort,
+});
+
+const toCampaign = (r: Row): Campaign => ({
+  id: r.id,
+  name: r.name,
+  kind: r.kind,
+  audience: r.audience,
+  body: r.body,
+  activityId: r.activity_id ?? undefined,
+  imageUrl: r.image_url ?? undefined,
+  templateName: r.template_name ?? undefined,
+  status: r.status,
+  scheduledAt: r.scheduled_at ?? undefined,
+  sentAt: r.sent_at ?? undefined,
+  stats: r.stats,
+  createdBy: r.created_by,
+  createdAt: r.created_at,
+});
+
+const fromCampaign = (c: Campaign): Row => ({
+  id: c.id,
+  name: c.name,
+  kind: c.kind,
+  audience: c.audience,
+  body: c.body,
+  activity_id: c.activityId ?? null,
+  image_url: c.imageUrl ?? null,
+  template_name: c.templateName ?? null,
+  status: c.status,
+  scheduled_at: c.scheduledAt ?? null,
+  sent_at: c.sentAt ?? null,
+  stats: c.stats,
+  created_by: c.createdBy,
+  created_at: c.createdAt,
 });
 
 const now = () => new Date().toISOString();
@@ -440,10 +479,10 @@ export const supabaseRepo: Repo = {
     );
   },
 
-  async listNotifications() {
-    return (
-      check(await admin().from("notifications").select("*").order("created_at", { ascending: false }).limit(200)) as Row[]
-    ).map(
+  async listNotifications(opts) {
+    let q = admin().from("notifications").select("*").order("created_at", { ascending: false }).limit(opts?.limit ?? 500);
+    if (opts?.refPrefix) q = q.like("ref", `${opts.refPrefix}%`);
+    return (check(await q) as Row[]).map(
       (r): Notification => ({
         id: r.id,
         channel: r.channel,
@@ -456,11 +495,33 @@ export const supabaseRepo: Repo = {
       }),
     );
   },
+
+  async listCampaigns() {
+    return (check(await admin().from("campaigns").select("*").order("created_at", { ascending: false })) as Row[]).map(toCampaign);
+  },
+
+  async getCampaign(id) {
+    const r = check(await admin().from("campaigns").select("*").eq("id", id).maybeSingle());
+    return r ? toCampaign(r) : null;
+  },
+
+  async saveCampaign(c) {
+    check(await admin().from("campaigns").upsert(fromCampaign(c)));
+  },
+
+  async getAutomations() {
+    const r = check(await admin().from("settings").select("value").eq("key", "automations").maybeSingle());
+    return (r?.value as Automations) ?? structuredClone(defaultAutomations);
+  },
+
+  async saveAutomations(a) {
+    check(await admin().from("settings").upsert({ key: "automations", value: a }));
+  },
 };
 
 /** Inserta los datos de ejemplo en una base vacía (botón en /admin). */
 export async function seedSupabase() {
-  const { seedActivities, seedPrograms, seedPeople, seedLeads } = await import("@/lib/seed");
+  const { seedActivities, seedPrograms, seedPeople, seedLeads, seedCampaigns } = await import("@/lib/seed");
   const acts = seedActivities();
   const { people, orders, bookings } = seedPeople(acts);
   check(await admin().from("activities").upsert(acts.map((a) => ({ ...fromActivity(a), created_at: a.createdAt }))));
@@ -478,4 +539,5 @@ export async function seedSupabase() {
   check(await admin().from("orders").upsert(orders.map(fromOrder)));
   check(await admin().from("bookings").upsert(bookings.map(fromBooking)));
   check(await admin().from("leads").upsert(seedLeads().map(fromLead)));
+  check(await admin().from("campaigns").upsert(seedCampaigns().map(fromCampaign)));
 }

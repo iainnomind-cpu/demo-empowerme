@@ -42,6 +42,7 @@ export function CheckoutFlow({
     privacy: consentsCurrent,
     image: consentsCurrent ? Boolean(profile?.consents?.image) : false,
     waiver: consentsCurrent,
+    marketing: Boolean(profile?.marketing?.optIn),
   });
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -154,6 +155,16 @@ export function CheckoutFlow({
                 </div>
               );
             })}
+            <label className={cn("flex cursor-pointer items-start gap-3 rounded-2xl p-4 ring-1 transition", form.marketing ? "bg-sage/25 ring-sage" : "ring-line")}>
+              <input type="checkbox" checked={form.marketing} onChange={(e) => set("marketing", e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[var(--color-brand)]" />
+              <span className="flex-1">
+                <span className="flex items-center gap-2 font-semibold">
+                  <WhatsAppIcon className="size-4" /> Quiero enterarme primero de nuevas experiencias
+                  <span className="text-xs font-normal text-muted">(opcional)</span>
+                </span>
+                <span className="block text-sm text-muted">Te escribimos por WhatsApp con nuevas fechas y promociones. Te das de baja cuando quieras respondiendo BAJA.</span>
+              </span>
+            </label>
           </div>
         </section>
       </div>
